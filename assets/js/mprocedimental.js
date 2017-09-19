@@ -1,4 +1,4 @@
-
+'use strict';
 $(document).ready(function () {
     newGame('reg');
     $('#new-game').hide();
@@ -23,14 +23,14 @@ function newGame(difficulty) {
     let board;
     switch (difficulty) {
         case 'easy':
-            board = new Board(6, 8);
+            board = new Board(6, 6);
             break;
         case 'hard':
-            board = new Board(12, 15);
+            board = new Board(8, 8);
             break;
         case 'reg':
         default:
-            board = new Board(8, 10);
+            board = new Board(10, 10);
             break;
     }
     board.render();
@@ -77,8 +77,8 @@ function Board(row, col) {
 
     this.render = function () {
         let spaces = "";
-        for (i = 1; i <= row; i++) {
-            for (j = 1; j <= col; j++) {
+        for (let i = 1; i <= row; i++) {
+            for (let j = 1; j <= col; j++) {
                 spaces = spaces.concat('<div class="space" data-row="' + i + '" data-col="' + j + '">&nbsp;</div>');
             }
             spaces = spaces.concat('<br />');
@@ -88,8 +88,8 @@ function Board(row, col) {
     }
 
     this.explode = function () {
-        for (i = 0; i < this.row; i++) {
-            for (j = 0; j < this.col; j++) {
+        for (let i = 0; i < this.row; i++) {
+            for (let j = 0; j < this.col; j++) {
                 if (this.spaces[i][j].holds == -1) {
                     let dom_target = 'div[data-row="' + (i + 1) + '"][data-col="' + (j + 1) + '"]';
                     $(dom_target).addClass('bomb');
@@ -128,9 +128,9 @@ function Board(row, col) {
     if (this.spaces !== undefined) {
         this.spaces = new Array(this.row);
 
-        for (i = 0; i < this.row; i++) {
+        for (let i = 0; i < this.row; i++) {
             this.spaces[i] = new Array(this.col);
-            for (j = 0; j < this.col; j++) {
+            for (let j = 0; j < this.col; j++) {
                 this.spaces[i][j] = new Space(false, 0);
             }
         }
@@ -139,15 +139,15 @@ function Board(row, col) {
         let max = this.row * this.col;
         this.bombCount = Math.round((Math.random() * ((max / 2) - min) + (min)));
         $('#value').html(this.bombCount);
-        for (i = 0; i < this.bombCount; i++) {
+        for (let i = 0; i < this.bombCount; i++) {
             let bombIndex = Math.round(Math.random() * (max - 1));
             let x = Math.floor(bombIndex / this.col);
             let y = bombIndex % this.col;
             this.spaces[x][y] = new Space(false, -1);
         }
 
-        for (i = 0; i < this.row; i++) {
-            for (j = 0; j < this.col; j++) {
+        for (let i = 0; i < this.row; i++) {
+            for (let j = 0; j < this.col; j++) {
                 this.spaces[i][j].holds = numBombNear.call(this, i, j);
             }
         }
@@ -168,8 +168,8 @@ function Board(row, col) {
 
     function checkAllCellsExplored() {
         if (this.row * this.col - this.spacesCleared == this.bombCount) {
-            for (i = 0; i < this.row; i++) {
-                for (j = 0; j < this.col; j++) {
+            for (let i = 0; i < this.row; i++) {
+                for (let j = 0; j < this.col; j++) {
                     if (this.spaces[i][j].holds == -1) {
                         let bomb_target = 'div[data-row="' + (i + 1) + '"][data-col="' + (j + 1) + '"]';
                         $(bomb_target).html('<i class="fa fa-smile-o"></i>');
