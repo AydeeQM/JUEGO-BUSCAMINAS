@@ -2,6 +2,24 @@
 class Setup {
     constructor(board) {
         this.board = board;
+        $(document).ready(function () {
+            app.newGame('medium');
+            $('#new-game').hide();
+
+            $('#difficulty li').click(function (eventObject) {
+                $('#difficulty li').removeClass('selected');
+                $(this).addClass('selected');
+                let difficulty = $(this).attr('id');
+                app.newGame(difficulty);
+                $('#new-game').hide();
+            });
+
+            $('#new-game').click(function (eventObject) {
+                let difficulty = $('#difficulty li.selected').attr('id');
+                app.newGame(difficulty);
+                $('#new-game').hide();
+            });
+        });
     }
     newGame(difficulty) {
         switch (difficulty) {
@@ -25,6 +43,7 @@ class Setup {
 
         return this.board;
     }
+
 }
 class Player {
     constructor(row, col) {
@@ -188,12 +207,13 @@ class Player {
 
 }
 
-class Space{
+class Space {
     constructor(explored, holds) {
         this.explored = explored;
         this.holds = holds;
     }
 }
 
+let start = new Setup()
 
 
