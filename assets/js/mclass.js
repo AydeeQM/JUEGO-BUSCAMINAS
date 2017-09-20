@@ -27,24 +27,24 @@ class Setup {
     newGame () {
         switch (this.difficulty) {
             case 'easy':
-                app.setup.board = new app.Board(6, 6);
+                this.board = new app.Board(6, 6);
                 break;
             case 'hard':
-                app.setup.board = new app.Board(10, 10);
+                this.board = new app.Board(10, 10);
                 break;
             case 'medium':
             default:
-                app.setup.board = new app.Board(8, 8);
+                this.board = new app.Board(8, 8);
                 break;
         }
-        app.setup.board.render();
-        app.setup.board.gameOver = false;
+        this.board.render();
+        this.board.gameOver = false;
 
         $('.space').click(function (eventObject) {
-            app.setup.board.click(eventObject.target);
+            this.board.click(eventObject.target);
         });
 
-        return app.setup.board;
+        return this.board;
     }
 
 }
