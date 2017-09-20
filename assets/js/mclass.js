@@ -1,40 +1,37 @@
 'use strict';
 class Setup {
-    constructor(board, difficulty) {
+    constructor(board) {
+        
         this.board = board;
-        this.difficulty = difficulty;
+        this.newGame('medium');
+        $('#new-game').hide();
 
-        $(document).ready(function () {
-            this.newGame('medium');
+        $('#difficulty li').click(function (eventObject) {
+            $('#difficulty li').removeClass('selected');
+            $(this).addClass('selected');
+            this.difficulty = $(this).attr('id');
+            this.newGame(difficulty);
             $('#new-game').hide();
+        });
 
-            $('#difficulty li').click(function (eventObject) {
-                $('#difficulty li').removeClass('selected');
-                $(this).addClass('selected');
-                this.difficulty = $(this).attr('id');
-                this.newGame(this.difficulty);
-                $('#new-game').hide();
-            });
-
-            $('#new-game').click(function (eventObject) {
-                let difficulty = $('#difficulty li.selected').attr('id');
-                this.newGame(difficulty);
-                $('#new-game').hide();
-            });
+        $('#new-game').click(function (eventObject) {
+            let difficulty = $('#difficulty li.selected').attr('id');
+            this.newGame(difficulty);
+            $('#new-game').hide();
         });
     }
 
-    newGame () {
-        switch (this.difficulty) {
+    newGame(difficulty) {
+        switch (difficulty) {
             case 'easy':
-                this.board = new app.Board(6, 6);
+                this.board = new Player(6, 6);
                 break;
             case 'hard':
-                this.board = new app.Board(10, 10);
+                this.board = new Player(10, 10);
                 break;
             case 'medium':
             default:
-                this.board = new app.Board(8, 8);
+                this.board = new Player(8, 8);
                 break;
         }
         this.board.render();
@@ -218,4 +215,6 @@ class Space {
 }
 
 
-
+let space = new Space();
+let player = new Player(space);
+let setup = new Setup(player);

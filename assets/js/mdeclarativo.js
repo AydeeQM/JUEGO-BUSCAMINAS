@@ -108,6 +108,7 @@ const app = {
             }
             this.gameOver = true;
             $('#new-game').show();
+            alert('perdiste!!!');
         }
 
         let numBombNear = function (row, col) {
