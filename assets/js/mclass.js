@@ -1,47 +1,50 @@
 'use strict';
 class Setup {
-    constructor(board) {
+    constructor(board, difficulty) {
         this.board = board;
+        this.difficulty = difficulty;
+
         $(document).ready(function () {
-            app.newGame('medium');
+            this.newGame('medium');
             $('#new-game').hide();
 
             $('#difficulty li').click(function (eventObject) {
                 $('#difficulty li').removeClass('selected');
                 $(this).addClass('selected');
-                let difficulty = $(this).attr('id');
-                app.newGame(difficulty);
+                this.difficulty = $(this).attr('id');
+                this.newGame(this.difficulty);
                 $('#new-game').hide();
             });
 
             $('#new-game').click(function (eventObject) {
                 let difficulty = $('#difficulty li.selected').attr('id');
-                app.newGame(difficulty);
+                this.newGame(difficulty);
                 $('#new-game').hide();
             });
         });
     }
-    newGame(difficulty) {
-        switch (difficulty) {
+
+    newGame () {
+        switch (this.difficulty) {
             case 'easy':
-                this.board = new Player(6, 6);
+                app.setup.board = new app.Board(6, 6);
                 break;
             case 'hard':
-                this.board = new Player(10, 10);
+                app.setup.board = new app.Board(10, 10);
                 break;
             case 'medium':
             default:
-                this.board = new Player(8, 8);
+                app.setup.board = new app.Board(8, 8);
                 break;
         }
-        this.board.render();
-        this.board.gameOver = false;
+        app.setup.board.render();
+        app.setup.board.gameOver = false;
 
         $('.space').click(function (eventObject) {
-            this.board.click(eventObject.target);
+            app.setup.board.click(eventObject.target);
         });
 
-        return this.board;
+        return app.setup.board;
     }
 
 }
@@ -214,6 +217,5 @@ class Space {
     }
 }
 
-let start = new Setup()
 
 
