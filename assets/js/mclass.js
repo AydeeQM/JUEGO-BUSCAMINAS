@@ -3,18 +3,20 @@ class Setup {
     constructor(board) {
         
         this.board = board;
+        
         this.newGame('medium');
         $('#new-game').hide();
 
-        $('#difficulty li').click(function (eventObject) {
+        $('#difficulty li').on('click',(event) => {
             $('#difficulty li').removeClass('selected');
-            $(this).addClass('selected');
-            this.difficulty = $(this).attr('id');
+            $(event.target).addClass('selected');
+            let difficulty = $(event.target).attr('id');
+            //console.log(difficulty);
             this.newGame(difficulty);
             $('#new-game').hide();
         });
 
-        $('#new-game').click(function (eventObject) {
+        $('#new-game').on('click',(event) => {
             let difficulty = $('#difficulty li.selected').attr('id');
             this.newGame(difficulty);
             $('#new-game').hide();
@@ -37,8 +39,8 @@ class Setup {
         this.board.render();
         this.board.gameOver = false;
 
-        $('.space').click(function (eventObject) {
-            this.board.click(eventObject.target);
+        $('.space').on('click',(event) => {
+            this.board.click(event.target);
         });
 
         return this.board;
@@ -53,11 +55,15 @@ class Player {
         this.gameOver = false;
         this.spacesCleared = 0;
         this.bombCount = 0;
+
     }
+    
     click(target_elem) {
         let row = $(target_elem).attr("data-row");
         let col = $(target_elem).attr("data-col");
 
+        console.log(row);
+        console.log(col);
 
         if (this.gameOver === true) {
             return;
@@ -71,7 +77,7 @@ class Player {
             this.explode();
         } else if (this.spaces[row - 1][col - 1].holds == 0) {
             this.clear(row - 1, col - 1);
-            uncoverSurroundings.call(this, row - 1, col - 1);
+            this.uncoverSurroundings.call(this, row - 1, col - 1);
         } else {
             this.clear(row - 1, col - 1);
         }
@@ -109,9 +115,9 @@ class Player {
             return -1;
         }
 
-        sum += valueAt.call(this, row - 1, col - 1) + valueAt.call(this, row - 1, col) + valueAt.call(this, row - 1, col + 1)
-            + valueAt.call(this, row, col - 1) + valueAt.call(this, row, col + 1)
-            + valueAt.call(this, row + 1, col - 1) + valueAt.call(this, row + 1, col) + valueAt.call(this, row + 1, col + 1);
+        sum += this.valueAt.call(this, row - 1, col - 1) + this.valueAt.call(this, row - 1, col) + this.valueAt.call(this, row - 1, col + 1)
+            + this.valueAt.call(this, row, col - 1) + this.valueAt.call(this, row, col + 1)
+            + this.valueAt.call(this, row + 1, col - 1) + this.valueAt.call(this, row + 1, col) + this.valueAt.call(this, row + 1, col + 1);
 
         return sum;
     }
@@ -134,7 +140,7 @@ class Player {
             for (let i = 0; i < this.row; i++) {
                 this.spaces[i] = new Array(this.col);
                 for (let j = 0; j < this.col; j++) {
-                    this.spaces[i][j] = new app.Space(false, 0);
+                    this.spaces[i][j] = new Space(false, 0);
                 }
             }
 
@@ -146,7 +152,7 @@ class Player {
                 let bombIndex = Math.round(Math.random() * (max - 1));
                 let x = Math.floor(bombIndex / this.col);
                 let y = bombIndex % this.col;
-                this.spaces[x][y] = new app.Space(false, -1);
+                this.spaces[x][y] = new Space(false, -1);
             }
 
             for (let i = 0; i < this.row; i++) {
@@ -166,7 +172,7 @@ class Player {
         } else {
             $(dom_target).html('&nbsp');
         }
-        checkAllCellsExplored.call(this);
+        this.checkAllCellsExplored.call(this);
         this.spacesCleared++;
         this.spaces[row][col].explored = true;
     }
@@ -187,10 +193,10 @@ class Player {
     }
 
     uncoverSurroundings(row, col) {
-        checkSpace.call(this, row - 1, col - 1); checkSpace.call(this, row - 1, col); checkSpace.call(this, row - 1, col + 1);
-        checkSpace.call(this, row, col - 1); checkSpace.call(this, row, col + 1);
-        checkSpace.call(this, row + 1, col - 1); checkSpace.call(this, row + 1, col); checkSpace.call(this, row + 1, col + 1);
-        checkAllCellsExplored.call(this);
+        this.checkSpace.call(this, row - 1, col - 1); this.checkSpace.call(this, row - 1, col); this.checkSpace.call(this, row - 1, col + 1);
+        this.checkSpace.call(this, row, col - 1); this.checkSpace.call(this, row, col + 1);
+        this.checkSpace.call(this, row + 1, col - 1); this.checkSpace.call(this, row + 1, col); this.checkSpace.call(this, row + 1, col + 1);
+        this.checkAllCellsExplored.call(this);
     }
 
     checkSpace(row, col) {
@@ -199,7 +205,7 @@ class Player {
         } else if (this.spaces[row][col].holds >= 0) {
             this.clear(row, col);
             if (this.spaces[row][col].holds == 0) {
-                uncoverSurroundings.call(this, row, col);
+                this.uncoverSurroundings.call(this, row, col);
                 return;
             }
         }
