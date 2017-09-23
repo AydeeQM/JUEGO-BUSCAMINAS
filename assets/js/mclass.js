@@ -1,7 +1,7 @@
 'use strict';
 class Setup {
     constructor(board) {
-
+        
         this.board = undefined;
 
         this.newGame('medium');
@@ -53,7 +53,6 @@ class Space {
     }
 }
 
-// Board Object
 class Player {
     constructor(row, col) {
         this.row = row;
