@@ -1,22 +1,21 @@
 'use strict';
 class Setup {
     constructor(board) {
-        
-        this.board = board;
-        
+
+        this.board = undefined;
+
         this.newGame('medium');
         $('#new-game').hide();
 
-        $('#difficulty li').on('click',(event) => {
+        $('#difficulty li').on('click', (event) => {
             $('#difficulty li').removeClass('selected');
             $(event.target).addClass('selected');
             let difficulty = $(event.target).attr('id');
-            //console.log(difficulty);
             this.newGame(difficulty);
             $('#new-game').hide();
         });
 
-        $('#new-game').on('click',(event) => {
+        $('#new-game').on('click', (event) => {
             let difficulty = $('#difficulty li.selected').attr('id');
             this.newGame(difficulty);
             $('#new-game').hide();
@@ -39,14 +38,22 @@ class Setup {
         this.board.render();
         this.board.gameOver = false;
 
-        $('.space').on('click',(event) => {
+        $('.space').on('click', (event) => {
             this.board.click(event.target);
         });
 
         return this.board;
     }
-
 }
+
+class Space {
+    constructor(explored, holds) {
+        this.explored = explored;
+        this.holds = holds;
+    }
+}
+
+// Board Object
 class Player {
     constructor(row, col) {
         this.row = row;
@@ -56,84 +63,82 @@ class Player {
         this.spacesCleared = 0;
         this.bombCount = 0;
 
-    }
-    
-    click(target_elem) {
-        let row = $(target_elem).attr("data-row");
-        let col = $(target_elem).attr("data-col");
+        this.click = (target_elem) => {
+            let row = $(target_elem).attr("data-row");
+            let col = $(target_elem).attr("data-col");
 
-        console.log(row);
-        console.log(col);
 
-        if (this.gameOver === true) {
-            return;
-        }
-
-        if (this.spaces[row - 1][col - 1].explored == true) {
-            return;
-        }
-
-        if (this.spaces[row - 1][col - 1].holds == -1) {
-            this.explode();
-        } else if (this.spaces[row - 1][col - 1].holds == 0) {
-            this.clear(row - 1, col - 1);
-            this.uncoverSurroundings.call(this, row - 1, col - 1);
-        } else {
-            this.clear(row - 1, col - 1);
-        }
-    }
-
-    render() {
-        let spaces = "";
-        for (let i = 1; i <= this.row; i++) {
-            for (let j = 1; j <= this.col; j++) {
-                spaces = spaces.concat('<div class="space" data-row="' + i + '" data-col="' + j + '">&nbsp;</div>');
+            if (this.gameOver === true) {
+                return;
             }
-            spaces = spaces.concat('<br />');
-        }
-        $('#board').empty();
-        $('#board').append(spaces);
-    }
 
-    explode() {
-        for (let i = 0; i < this.row; i++) {
-            for (let j = 0; j < this.col; j++) {
-                if (this.spaces[i][j].holds == -1) {
-                    let dom_target = 'div[data-row="' + (i + 1) + '"][data-col="' + (j + 1) + '"]';
-                    $(dom_target).addClass('bomb');
-                    $(dom_target).html('<i class="fa fa-bomb"></i>');
+            if (this.spaces[row - 1][col - 1].explored == true) {
+                return;
+            }
+
+            if (this.spaces[row - 1][col - 1].holds == -1) {
+                this.explode();
+            } else if (this.spaces[row - 1][col - 1].holds == 0) {
+                this.clear(row - 1, col - 1);
+                discovering.call(this, row - 1, col - 1);
+            } else {
+                this.clear(row - 1, col - 1);
+            }
+        }
+
+        this.render = () => {
+            let spaces = "";
+            for (let i = 1; i <= row; i++) {
+                for (let j = 1; j <= col; j++) {
+                    spaces = spaces.concat('<div class="space" data-row="' + i + '" data-col="' + j + '">&nbsp;</div>');
+                }
+                spaces = spaces.concat('<br />');
+            }
+            $('#board').empty();
+            $('#board').append(spaces);
+        }
+
+        this.explode = () => {
+            for (let i = 0; i < this.row; i++) {
+                for (let j = 0; j < this.col; j++) {
+                    if (this.spaces[i][j].holds == -1) {
+                        let dom_target = 'div[data-row="' + (i + 1) + '"][data-col="' + (j + 1) + '"]';
+                        $(dom_target).addClass('bomb');
+                        $(dom_target).html('<i class="fa fa-bomb"></i>');
+                    }
                 }
             }
-        }
-        this.gameOver = true;
-        $('#new-game').show();
-    }
-
-    numBombNear(row, col) {
-        let sum = 0;
-        if (this.spaces[row][col].holds == -1) {
-            return -1;
+            this.gameOver = true;
+            $('#new-game').show();
         }
 
-        sum += this.valueAt.call(this, row - 1, col - 1) + this.valueAt.call(this, row - 1, col) + this.valueAt.call(this, row - 1, col + 1)
-            + this.valueAt.call(this, row, col - 1) + this.valueAt.call(this, row, col + 1)
-            + this.valueAt.call(this, row + 1, col - 1) + this.valueAt.call(this, row + 1, col) + this.valueAt.call(this, row + 1, col + 1);
+        let numBombNear = (row, col) => {
+            let sum = 0;
 
-        return sum;
-    }
+            if (this.spaces[row][col].holds == -1) {
+                return -1;
+            }
 
-    valueAt(row, col) {
-        if (row < 0 || row >= this.row || col < 0 || col >= this.col) {
-            return 0;
-        } else if (this.spaces[row][col].holds == -1) {
-            return 1;
-        } else {
-            return 0;
+            sum += this.valueAt.call(this, row - 1, col - 1) + this.valueAt.call(this, row - 1, col) + this.valueAt.call(this, row - 1, col + 1)
+                + this.valueAt.call(this, row, col - 1) + this.valueAt.call(this, row, col + 1)
+                + this.valueAt.call(this, row + 1, col - 1) + this.valueAt.call(this, row + 1, col) + this.valueAt.call(this, row + 1, col + 1);
+
+            return sum;
         }
-    }
 
-    //Initializing the Object
-    initObject() {
+        this.clear = (row, col) => {
+            let dom_target = 'div[data-row="' + (row + 1) + '"][data-col="' + (col + 1) + '"]';
+            $(dom_target).addClass('safe');
+            if (this.spaces[row][col].holds > 0) {
+                $(dom_target).text(this.spaces[row][col].holds);
+            } else {
+                $(dom_target).html('&nbsp');
+            }
+            this.checkAllCellsExplored.call(this);
+            this.spacesCleared++;
+            this.spaces[row][col].explored = true;
+        }
+
         if (this.spaces !== undefined) {
             this.spaces = new Array(this.row);
 
@@ -157,30 +162,27 @@ class Player {
 
             for (let i = 0; i < this.row; i++) {
                 for (let j = 0; j < this.col; j++) {
-                    this.spaces[i][j].holds = this.numBombNear.call(this, i, j);
+                    this.spaces[i][j].holds = numBombNear.call(this, i, j);
                 }
             }
         }
 
     }
 
-    clear(row, col) {
-        let dom_target = 'div[data-row="' + (row + 1) + '"][data-col="' + (col + 1) + '"]';
-        $(dom_target).addClass('safe');
-        if (this.spaces[row][col].holds > 0) {
-            $(dom_target).text(this.spaces[row][col].holds);
+    valueAt(row, col) {
+        if (row < 0 || row >= this.row || col < 0 || col >= this.col) {
+            return 0;
+        } else if (this.spaces[row][col].holds == -1) {
+            return 1;
         } else {
-            $(dom_target).html('&nbsp');
+            return 0;
         }
-        this.checkAllCellsExplored.call(this);
-        this.spacesCleared++;
-        this.spaces[row][col].explored = true;
     }
 
     checkAllCellsExplored() {
         if (this.row * this.col - this.spacesCleared == this.bombCount) {
-            for (i = 0; i < this.row; i++) {
-                for (j = 0; j < this.col; j++) {
+            for (let i = 0; i < this.row; i++) {
+                for (let j = 0; j < this.col; j++) {
                     if (this.spaces[i][j].holds == -1) {
                         let bomb_target = 'div[data-row="' + (i + 1) + '"][data-col="' + (j + 1) + '"]';
                         $(bomb_target).html('<i class="fa fa-smile-o"></i>');
@@ -192,7 +194,7 @@ class Player {
         }
     }
 
-    uncoverSurroundings(row, col) {
+    discovering(row, col) {
         this.checkSpace.call(this, row - 1, col - 1); this.checkSpace.call(this, row - 1, col); this.checkSpace.call(this, row - 1, col + 1);
         this.checkSpace.call(this, row, col - 1); this.checkSpace.call(this, row, col + 1);
         this.checkSpace.call(this, row + 1, col - 1); this.checkSpace.call(this, row + 1, col); this.checkSpace.call(this, row + 1, col + 1);
@@ -205,22 +207,11 @@ class Player {
         } else if (this.spaces[row][col].holds >= 0) {
             this.clear(row, col);
             if (this.spaces[row][col].holds == 0) {
-                this.uncoverSurroundings.call(this, row, col);
+                this.discovering.call(this, row, col);
                 return;
             }
         }
     }
-
 }
 
-class Space {
-    constructor(explored, holds) {
-        this.explored = explored;
-        this.holds = holds;
-    }
-}
-
-
-let space = new Space();
-let player = new Player(space);
-let setup = new Setup(player);
+let setup = new Setup();
